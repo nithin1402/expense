@@ -1,4 +1,5 @@
 
+import 'package:expenso/data/model/expense_model.dart';
 import 'package:expenso/data/model/user_model.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
@@ -82,7 +83,27 @@ class DbHelper {
 
     return mData.isNotEmpty;
 
+  }
 
+  Future<bool> addExpense(ExpenseModel newExpense) async{
+    var db= await initDB();
+
+    int rowsEffected = await db.insert(EXPENSE_TABLE_NAME, newExpense.toMap());
+
+    return rowsEffected>0;
+
+  }
+
+  Future<List<ExpenseModel>> getAllNotes() async{
+
+    var db = await initDB();
+    List<Map<String,dynamic>> mData = await db.query(EXPENSE_TABLE_NAME);
+    List<ExpenseModel> allExp = [];
+
+    for(Map<String,dynamic> eachExp in mData){
+      allExp.add(ExpenseModel.forMap(eachExp));
+    }
+    return allExp;
 
   }
 

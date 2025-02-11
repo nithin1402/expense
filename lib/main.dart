@@ -1,12 +1,17 @@
 import 'dart:async';
 
+import 'package:expenso/data/db_helper.dart';
+import 'package:expenso/ui/bloc/expense_bloc.dart';
 import 'package:expenso/ui/dashboard_page.dart';
 import 'package:expenso/ui/on_boarding/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(BlocProvider(
+    create: (context)=>ExpenseBloc(dbHelper: DbHelper.instance) ,
+      child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {

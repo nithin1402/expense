@@ -1,6 +1,12 @@
+import 'package:expenso/data/db_helper.dart';
+import 'package:expenso/data/model/expense_model.dart';
 import 'package:expenso/domain/app_constants.dart';
 import 'package:expenso/domain/ui_helper.dart';
+import 'package:expenso/ui/bloc/expense_bloc.dart';
+import 'package:expenso/ui/bloc/expense_event.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AddExpPage extends StatefulWidget {
   const AddExpPage({super.key});
@@ -45,39 +51,6 @@ class _AddExpPageState extends State<AddExpPage> {
               controller: amountController,
               decoration: mFieldDecor(hint: "Enter amount here..", heading: "Amount"),
             ),
-            SizedBox(height: 11,),
-            StatefulBuilder(builder: (_,ss){
-              // return DropdownButton(
-              //   value: selectedExpenseType,
-              //     items: mExpenseType.map((expenseType) {
-              //   return DropdownMenuItem(child: Text(expenseType),value: expenseType,);
-              // }).toList(), onChanged: (value){
-              //   selectedExpenseType=value ?? "Debit";
-              //   ss(() {});
-              // });
-
-              return DropdownMenu(
-               // width: double.infinity,
-                inputDecorationTheme: InputDecorationTheme(
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(21),
-                    borderSide: BorderSide(width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(21),
-                    borderSide: BorderSide(width: 1)
-                  )
-                ),
-                initialSelection: selectedExpenseType,
-                  onSelected: (value){
-                  selectedExpenseType=value ?? "Debit";
-                  },
-                  dropdownMenuEntries: mExpenseType.map((expenseType){
-                return DropdownMenuEntry(
-                    value: expenseType,
-                    label: expenseType);
-              }).toList());
-            }),
             SizedBox(height: 11,),
             InkWell(
               onTap: () {
@@ -127,6 +100,92 @@ class _AddExpPageState extends State<AddExpPage> {
                   ],
                 ) : Center(child: Text("Choose Category",style: TextStyle(fontSize: 15),)),
               ),
+            ),
+            SizedBox(height: 31,),
+            Row(
+              children: [
+                Expanded(
+                  child: StatefulBuilder(builder: (_,ss){
+                    // return DropdownButton(
+                    //   value: selectedExpenseType,
+                    //     items: mExpenseType.map((expenseType) {
+                    //   return DropdownMenuItem(child: Text(expenseType),value: expenseType,);
+                    // }).toList(), onChanged: (value){
+                    //   selectedExpenseType=value ?? "Debit";
+                    //   ss(() {});
+                    // });
+                    return DropdownMenu(
+                      // width: double.infinity,
+                        inputDecorationTheme: InputDecorationTheme(
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(21),
+                              borderSide: BorderSide(width: 1),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(21),
+                                borderSide: BorderSide(width: 1)
+                            )
+                        ),
+                        initialSelection: selectedExpenseType,
+                        onSelected: (value){
+                          selectedExpenseType=value ?? "Debit";
+                        },
+                        dropdownMenuEntries: mExpenseType.map((expenseType){
+                          return DropdownMenuEntry(
+                              value: expenseType,
+                              label: expenseType);
+                        }).toList());
+                  }),
+                ),
+                SizedBox(width: 31,),
+                Expanded(
+                  child: SizedBox(
+                    height: 58,
+                    child: OutlinedButton(onPressed: () async{
+
+                      if(titleController.text.isNotEmpty && descController.text.isNotEmpty && amountController.text.isNotEmpty && selectedCatId>-1){
+
+                        var prefs = await SharedPreferences.getInstance();
+                        String uid = prefs.getString("userID") ?? "";
+                        
+                        context.read<ExpenseBloc>().add(AddExpenseEvent(
+                            newExp:ExpenseModel(
+                                userId: int.parse(uid),
+                                expenseType: selectedExpenseType,
+                                title: titleController.text,
+                                desc: descController.text,
+                                createdAt: DateTime.now().millisecondsSinceEpoch.toString(),
+                                amount: double.parse(amountController.text),
+                                balance: 0,
+                                categoryId: AppConstants.mCat[selectedCatId].id)));
+
+                           // DbHelper dbhelper = DbHelper.instance;
+                            //bool check = await dbhelper.addExpense(
+
+                        // if(check){
+                        //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Expense added"),backgroundColor: Colors.green,));
+                        //   Navigator.pop(context);
+                        // }else{
+                        //   ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error adding expense"),backgroundColor: Colors.red,));
+                        // }
+
+                      }
+
+
+                    },
+                        style: ElevatedButton.styleFrom(
+                          side: BorderSide(
+                            width: 1
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(21)
+                          ),
+                          maximumSize: Size(double.infinity, 56)
+                        ),
+                        child: Text("Add Expense")),
+                  ),
+                ),
+              ],
             )
           ],
         ),

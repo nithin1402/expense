@@ -1,7 +1,8 @@
+
 import 'package:expenso/data/db_helper.dart';
 
 class ExpenseModel {
-  int? id;
+  var id;
   int userId;
   String expenseType;
   String title;
@@ -12,7 +13,7 @@ class ExpenseModel {
   int categoryId;
 
   ExpenseModel(
-      {required this.id,
+      {this.id,
       required this.userId,
       required this.expenseType,
       required this.title,
@@ -24,7 +25,7 @@ class ExpenseModel {
 
   factory ExpenseModel.forMap(Map<String, dynamic> map) {
     return ExpenseModel(
-        id: map[DbHelper.TABLE_EXPENSE_COLUMN_USER_ID],
+        id: map[DbHelper.TABLE_COLUMN_ID],
         userId: map[DbHelper.TABLE_EXPENSE_COLUMN_USER_ID],
         expenseType: map[DbHelper.TABLE_EXPENSE_COLUMN_TYPE],
         title: map[DbHelper.TABLE_EXPENSE_COLUN_TITLE],
